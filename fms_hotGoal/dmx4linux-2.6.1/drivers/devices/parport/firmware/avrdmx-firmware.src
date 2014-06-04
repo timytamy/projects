@@ -1,0 +1,5 @@
+[Files]
+avrdmx-firmware.c
+avrdmx-monitor.h
+avrdmx-monitor.c
+avrdmx-mon.h

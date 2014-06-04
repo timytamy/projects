@@ -1,0 +1,17 @@
+This work is distributed under the GPL (General Public Licence)
+provided by the FSF (Free Software Foundation). A copy of the GPL can
+be found in this directory.
+
+I have been unsure first what to do with the header files.
+Applications using the ioctl capabilities need to use the header
+file. To ensure that those applications don't fall under the
+(restrictive) GPL the header file dmxioctl.h and the DMXlib and its
+headers will be distributed under the LGPL. Use of it will be without
+any WARRANTY.  Please inform me when you are writing software that
+uses the drivers and write a small e-mail to: michael@cubic.org
+
+If you have problems with these licenses contact us. Maybe we'll
+change them in future releases if there is demand.
+
+Michael Stickel <michael@cubic.org>
+Author of dmx4linux.

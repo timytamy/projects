@@ -1,0 +1,62 @@
+dmx4linux-2.6.1:
+  - fixed shell scripts
+
+dmx4linux-2.6:
+  - ported drivers to Linux 2.6
+
+dmx4linux-2.5:
+  - finally fixed the last-channel-bug
+  - dmxconsole now supports serial and ps2 mice and joysticks
+  - dmxconsole now supports the LIRC library, thus can use remote controls
+    (infrared and the like)
+  - better module version handling
+  - Support for the USBDMX2 interface from Sunlite.
+  - Support for the USBDMX2-IN interface from Sunlite (credits to Burkhard Fischer).
+  - Support for Jan Menzels "MicroUSBDMX TX" and "MicroUSBDMX RX".
+  - Support for the Soundlight SLH1514 PCI interface.
+  - Support for the FTDI usb interface
+  - Soundlight ISA interfaces work again
+
+dmx4linux-2.4:
+  - dmxconsole resizes if terminal resizes
+  - added driver for AVR DMX-512 interface
+  - lpr2dmx3 now works
+  - new tool midi2dmx
+  - added driver for SoundLight DMXPCP
+
+dmx4linux-2.3:
+  - Added (preliminary) DMX43 driver
+  - renamed dmxmenzel to lpr2dmx
+  - Fixed the "lost updates" bug in the usb2dmx driver.
+  - Changed the /proc/dmxdummy/ interface of the dmxdummy driver a bit.
+  - Put lookup of ldconfig into configure script.
+  - Many driver and compilation fixes
+
+dmx4linux-2.2:
+  - Made code work with 2.4.x Kernels.
+  - Huge cleanups of the complete project. No file left untouched.
+  - Added support for Digimedias PCMCIA interface sold by Soundlight.
+  - Added html documentation.
+
+dmx4linux-2.1:
+  - Cleaned up dmxmenzel driver to prevent system-crash on initialisation.
+  - Made code work with 2.2.x Kernels again.
+  - Added support for USB device USB2DMX.
+  - Successfully compiled on Sparc-Linux om a SPARC-Station II.
+  - Successfully compiled on an iPAQ running Linux.
+
+dmx4linux-2.0:
+  - I2C support for KLC.
+  - Generic parport driver
+  - Some more cleanup and some examples.
+  - Blocking and non blocking IO and only /dev/dmx and /dev/dmxin.
+  - Currently switching to kernel-2.4.0 so the source
+    may not be compilable under 2.2.x for some time.
+
+dmx4linux-0.1.4:
+  - X/widgets/LED/*: fixed flickering because of unwanted clear_window.
+  - Added support for the Soundlight DMXPCP parallel port DMX interface
+  - Makefiles have been cleaned up.
+
+dmx4linux-0.1.3:
+  - first official release

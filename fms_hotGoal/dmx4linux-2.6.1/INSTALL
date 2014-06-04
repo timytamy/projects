@@ -1,0 +1,16 @@
+$ ./configure
+$ make
+###### the following as root
+# make install
+# make devinodes # to create device inodes in /dev. If your system uses udev you don't need this step.
+
+If you have trouble compiling the "dmxconsole" application in the
+tools/ directory the ncurses development files are probably missing on
+your installation. You can install them with something like "apt-get
+install libncurses5-dev"
+
+If you can't compile the drivers because of missing headers try
+something like "apt-get install kernel-build-2.4.27-2".
+
+Look at the webpages http://llg.cubic.org/dmx4linux for more install
+information.

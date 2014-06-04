@@ -1,0 +1,154 @@
+kernel drivers:
+- ftdi2usb driver crashed upon init
+- digimedia_cs need lots of "fixen durch loeschen". Evaluate which dgm driver to select for future releases
+  use new pcmcia tools for linux 2.6: http://kernel.org/pub/linux/utils/kernel/pcmcia/pcmcia.html
+- usb2dmx21 universe 2
+- usb2dmx : get/set startcode
+- sunlite : port to current kernels, support version 1 interface
+- update parport code to replace the deprecated enumerate() with the
+  new way and then use the direct parport_write_control() etc
+- select/poll fileops should be corrected like in chapter 7.4.8
+- check if VFS default lseek suffices for our drivers
+- dmxpcp: produces garbage
+- lpr2dmx: do currently not work
+- parport drivers: do we really need PARPORT_DEV_EXCL?
+- check all sources for __init, __exit flags
+- AVR: + fix readbyte() currently it returns always 0xFF
+       + support input
+       + check with EPP
+- remove /proc and use /sys
+- call SET_MODULE_OWNER or use .owner = THIS_MODULE
+- remove all dmx_family stuff
+
+- some interesting excerpts from http://lwn.net/Articles/2.6-kernel-api/
+
+ + The kernel now performs access checking for read() and write()
+calls before invoking the driver- or filesystem-specific
+file_operations method.
+
+ + The file_operations structure now contains an unlocked_ioctl()
+member. If that member is non-NULL, it will be called in preference to
+the regular ioctl() method - and the big kernel lock will not be
+held. New code should use unlocked_ioctl() and the programmer should
+ensure that the proper locking has been performed. There is also a new
+compat_ioctl() method which is called, if present, when a 32-bit
+process calls ioctl() on a 64-bit system.
+
+- have a look at
+ + http://janitor.kernelnewbies.org/docs/driver-howto.txt
+ + http://janitor.kernelnewbies.org/acme-todo
+ + http://vmlinux.org/jocke/linux/external-modules-2.6.shtml
+
+library:
+- use kernel,rs232,network interfaces in lib
+
+apps:
+- replace midi engine in midi2dmx with ALSA seq
+  + midi2dmx needs to honour midi channels
+- detect lirc lib in configure to use it in dmxconsole
+
+misc:
+- drivers/setup_devs should honour those linux distributions which use something like /etc/modutils and update-modutils stuff (debian and others)
+- Schematics, Src for AVR, oksid interface besorgen
+
+-----------------------------------
+The request for adoption (RFA) of dmx4linux is bug #433398.
+http://bugs.debian.org/433398
+
+-----------------------------------
+Hardware to schnorr:
+http://www.enttec.com
+http://www.cinetix.de/intrface/index.htm die benutzen den http://www.ftdichip.com/
+http://www.dmx4all.de
+http://www.sools.com/lightning/files/interfaces.xls
+
+Hardware to Löt:
+http://freedmx.com
+http://www.emanator.demon.co.uk/bigclive/dmxtest.htm
+
+I2C:
+  http://secure.netroedge.com/~lm78/
+  http://www.voxel.at/prj/i2c/images/i2c/i2c_adap.gif
+  http://www.voxel.at/prj/i2c/pcf-faq.html
+
+Startcode Semantics:
+---------------------
+0x00 = Dimmersteuerung
+0x01 = High Bytes einer 16 Bit Übertragung (Avolites)
+0x06 = Low Byte einer 16 Bit Übertragung
+0x07 = 16 Bit Übertragung mit Datenkompression und Checksum
+0xFF = Übertragung von Dimmerkennlinien
+
+----------------------
+from Bastien Andres <bastos@balelec.ch>
+I see that you begin to get the ioctl code out.
+As you may have noticed, the dgm module is runtime configurable for slots, startcode,
+timer_state, timer_freq and cpumode. This last property is important as the default cpumode
+when a new interface is created is 0 which means idle/idle. So to be able to send and recieve
+frames it must be set to an other value (actually by mean of properties). As the ioctl interface
+becomes obsolete, there will be a need to modify this modules behaviour. I have some ideas,
+tell me which one you find good or not or if you have others.
+
+  - set the values hardcoded or with compile options
+  - set the values as module parameters
+  - enable write access to /proc/dmx/universes/output/* and /proc/dmx/universes/input/*
+      (I tried this it works - just some S_IWUGO to add to dmx_proc.c)
+  - create a new /dev/dmxconf device with handlers to have a global mean to configure
+    dmx4linux at runtime
+  - create a driver specific proc entry like dmxdummy
+----
+I looked at the dmx4linux dmxdev code and yesterday I looked at the hw drivers.
+Isaw that only a few (only isa_slh1512c ??) interfaces features an interrupt
+mean to know when a frame has been received or one have been sent, meaning that
+one has to use a thread or something to poll for incomming data. I saw that you
+are using a kernel thread in many drivers. Is it better than just having a task
+on the timer queue?
+There is a thing which should be cleanly implemented : the data_availability.
+Every open file should have its own status to ensure that new data will be
+given to every process that is waiting for (for in and out universes). I
+thought of a bitmap structure to hold the {changed | requested} channels. Such
+a structure can then easily be parsed with logical operators to check if there
+is new data for a reader. For one universe, the bitmap is 64 bytes long and if
+we do this with u16 we can then bitmap these u16 in a u32 which give a 68 byte
+structure which can then be checked with just a "if (u32_bitmap)
+handle_this();". This is fast and has a small memory footprint. There is a need
+for one such structure for each universe and MAX_UNIVERSE * 2 structures for
+each open file (request & changed).
+One can also make the dmx_buffer accessible directly to universes driver so not
+need to have one more buffer to work => less memcopy. This buffer and the
+associated bitmap can be semaphore protected to ensure data consistency.
+One can also have only one thread/task to do all the job on timer :
+
+  - checking each universe for incomming data
+  - checking each file write for data for output universe
+  - sending all data to outputs
+  - checking for read and select who request new data that has been updated
+  - wakup these waiting process
+
+So only one entity will run instead of one per driver and do the update the
+right way : first checking all incommings and then handling the resulting
+changes.
+-----------------------------------------------------------------------------
+From: Jeff Garzik <jgarzik at mandrakesoft dot com>
+
+1) The string form
+
+        [const] char *foo = "blah";
+
+creates two variables in the final assembly output, a static string, and
+a char pointer to the static string.  The alternate string form
+
+        [const] char foo[] = "blah";
+
+is better because it declares a single variable.
+
+For variables marked __initdata, the "*foo" form causes only the
+pointer, not the string itself, to be dropped from the kernel image,
+which is a bug.  Using the "foo[]" form with regular 'ole local
+variables also makes the assembly shorter.
+
+
+2) "unsigned int" is preferred to "int", it generates better asm code on
+all platforms except sh5.  This replacement needs to be done manually,
+because often 'int' is required due to negative values -Exxx commonly
+passed as error values.

@@ -1,0 +1,63 @@
+#!/bin/sh
+# $Header: /code/dmx/drivers/setup_devs,v 1.23 2008/04/25 00:00:32 doj Exp $
+# part of dmx4linux http://llg.cubic.org/dmx4linux/
+#
+# install or remove /dev/ entries and modprobe configuration
+
+MODPROBE_DIR=/etc/modprobe.d
+[ -d $MODPROBE_DIR ] || mkdir $MODPROBE_DIR
+MODPROBE_CONF=$MODPROBE_DIR/dmx4linux
+
+clean()
+{
+  rm -f $MODPROBE_CONF /dev/dmx*
+}
+
+distclean()
+{
+  clean
+  groupdel dmx
+}
+
+install()
+{
+  if [ ! -f /tmp/dmxconfig.mk ] ; then
+    echo "could not find /tmp/dmxconfig.mk, maybe you have not configured dmx4linux?"
+    exit 1
+  fi
+  source /tmp/dmxconfig.mk
+
+  # clean old settings
+  clean
+
+  #  add a new group for dmx activity
+  groupadd dmx
+
+  # create device nodes
+  mknod /dev/dmx     c 10 ${DMXOUTMINOR}
+  mknod /dev/dmxin   c 10 ${DMXINMINOR}
+  chown root /dev/dmx /dev/dmxin
+  chgrp dmx /dev/dmx /dev/dmxin
+  chmod 660 /dev/dmx /dev/dmxin
+
+  # fix $MODPROBE_CONF
+  echo "alias char-major-10-${DMXOUTMINOR} dmxdev" >> $MODPROBE_CONF
+  echo "alias char-major-10-${DMXINMINOR} dmxdev" >> $MODPROBE_CONF
+
+  # make sure MODPROBE_DIR is handled by /etc/modprobe.conf
+  C=/etc/modprobe.conf
+  if [ -f $C ] ; then
+    if ! grep -q "include $MODPROBE_DIR" $C ; then
+      echo "include $MODPROBE_DIR" >> $C
+    fi
+  fi
+}
+
+if [ "$1" = "install" ]
+then install
+elif [ "$1" = "distclean" -o "$1" = "uninstall" ]
+then distclean
+else echo "usage: setup_devs install   - create device nodes in /dev"
+     echo "    or setup_devs distclean - remove device nodes in /dev"
+     exit 1
+fi

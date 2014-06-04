@@ -1,0 +1,18 @@
+			dmx4linux driver package
+			========================
+
+  This is a DMX device driver suite for Linux.  DMX is a serial
+  protocol that is used in the entertainment and stage-lighting for
+  controlling lighting dimmers or so called "intelligent lights" like
+  MIDI is used to attach music devices to each other or to a computer.
+
+  For more information on DMX4Linux look at the files in the doc/html
+  directory or go to http://llg.cubic.org/dmx4linux
+
+  A daily snapshot can be found at http://www.cubic.org/~michael/dmx4linux-daily/
+
+ HELP - MY INTERFACE IS NOT YET SUPPORTED.
+  If your interface is not supported please send me a mail to
+  michael@cubic.org with the vendor and device name and if possible
+  the URL where to find it and a short description on how to access it
+  from the computer if possible.
