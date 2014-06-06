@@ -29,13 +29,13 @@ class DMXConnection(object):
             self.dmx_frame.append(0)
         
       #open com
-        if comport is not None: port_num = comport-1
-        else:port_num = COM_PORT-1
+        ##if comport is not None: port_num = comport-1
+        ##else:port_num = COM_PORT-1
             
         try:
-            self.com = serial.Serial(port_num, baudrate=COM_BAUD, timeout=COM_TIMEOUT)
+            self.com = serial.Serial(comport, baudrate=COM_BAUD, timeout=COM_TIMEOUT)
         except:
-            print "Could not open COM%s, quitting application" % (port_num+1)
+            print "Could not open COM%s, quitting application" % (comport)
             sys.exit(0)
             
         print "Opened %s" % (self.com.portstr)
