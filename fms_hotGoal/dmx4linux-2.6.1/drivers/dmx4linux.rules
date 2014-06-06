@@ -1,3 +1,0 @@
-# udev rules for dmx4linux device nodes
-KERNEL=="dmx", NAME="dmx", MODE="660", GROUP="dmx"
-KERNEL=="dmxin", NAME="dmxin", MODE="660", GROUP="dmx"

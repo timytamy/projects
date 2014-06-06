@@ -1,9 +1,0 @@
-# digimedia dmx-interface device configuration
-#
-# The address format is "scheme,socket,instance".
-#
-case "$ADDRESS" in
-*,*,*)
-    INFO="Sample digimedia dmx-interface setup"
-    ;;
-esac

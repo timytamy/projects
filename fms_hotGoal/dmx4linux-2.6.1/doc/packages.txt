@@ -1,8 +1,0 @@
-
-
-Debian 4.0 Packages needed:
- libgpmg1-dev
- libncurses5-dev
- linux-headers-2.6.18-4-* (depends on your machine. E.g. linux-headers-2.6.18-4-686)
-
-
