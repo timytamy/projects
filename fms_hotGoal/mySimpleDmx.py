@@ -21,7 +21,7 @@ LABELS = {
    'TX_RDM_DISCOVERY_REQUEST' :11  #unused
 }
 
-class DMXConnection(object):
+class DmxWidget(object):
 
    def __init__(self, comport):
 
@@ -33,16 +33,18 @@ class DMXConnection(object):
       try:
          self.com = serial.Serial(comport, baudrate=COM_BAUD, timeout=COM_TIMEOUT)
       except:
-         print time.strftime("%H:%M:%S"), "Could not open %s, quitting application" % (comport)
-         print "Run command \"python -m serial.tools.list_ports\" to see available serial ports"
+         self.timePrint ("Could not open %s, aborting" % (comport))
+         self.timePrint ("To see available serial ports run")
+         self.timePrint ("\"python -m serial.tools.list_ports\"")
          sys.exit(0)
 
       print time.strftime("%H:%M:%S"), "Opened %s" % (self.com.portstr)
+      self.blackout()
 
    #  takes channel and value arguments to set a channel level in the local
    #  dmx frame, to be rendered the next time the render() method is called
    def setChannel(self, chan, val, autorender=False):
-      if (chan < 1) or (DMX_FRAME_SIZE < chan): return
+      if (chan < 1) or (DMX_FRAME_SIZE <= chan): return
       if val < 0: val=0
       if val > 255: val=255
 
@@ -61,7 +63,7 @@ class DMXConnection(object):
          tempDmxFrame = list(self.dmxFrame)
          self.dmxFrame = [0]*DMX_FRAME_SIZE
          self.render()
-         self.dmxFrame(tempDmxFrame)
+         self.dmxFrame = tempDmxFrame
          self.inBlackout = True
       else:
          self.render()
@@ -93,3 +95,6 @@ class DMXConnection(object):
 
    def close(self):
       self.com.close()
+   
+   def timePrint(self, string):
+      print time.strftime("%H:%M:%S"), string
