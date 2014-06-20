@@ -24,27 +24,28 @@ LABELS = {
 class DmxWidget(object):
 
    def __init__(self, comport):
-
       self.dmxFrame = [0]*DMX_FRAME_SIZE
       self.inBlackout = False
 
       #open com
-      self.com = 0
+      self.com = None
       try:
          self.com = serial.Serial(comport, baudrate=COM_BAUD, timeout=COM_TIMEOUT)
+         #self.com.baudrate = COM_BAUD
+         #self.com.timeout = COM_TIMEOUT
       except:
          self.timePrint ("Could not open %s, aborting" % (comport))
-         self.timePrint ("To see available serial ports run")
+         self.timePrint ("Hint: To see available serial ports run")
          self.timePrint ("\"python -m serial.tools.list_ports\"")
          sys.exit(0)
 
-      print time.strftime("%H:%M:%S"), "Opened %s" % (self.com.portstr)
-      self.blackout()
+      self.timePrint("Opened " + self.com.name)
+      self.clear()
 
    #  takes channel and value arguments to set a channel level in the local
    #  dmx frame, to be rendered the next time the render() method is called
    def setChannel(self, chan, val, autorender=False):
-      if (chan < 1) or (DMX_FRAME_SIZE <= chan): return
+      if (chan < 1) or (DMX_FRAME_SIZE < chan): return
       if val < 0: val=0
       if val > 255: val=255
 
@@ -54,16 +55,15 @@ class DmxWidget(object):
 
    #  clears all channels to zero.
    def clear(self):
-      for i in xrange (1, DMX_FRAME_SIZE, 1):
-         self.dmxFrame[i]=0
+      self.dmxFrame = [0]*DMX_FRAME_SIZE
+      self.render()
 
    #  toggles blackout
    def blackout(self):
       if self.inBlackout == False:
-         tempDmxFrame = list(self.dmxFrame)
-         self.dmxFrame = [0]*DMX_FRAME_SIZE
-         self.render()
-         self.dmxFrame = tempDmxFrame
+         self.tempDmxFrame = list(self.dmxFrame)
+         self.clear()
+         self.dmxFrame = list(self.tempDmxFrame)
          self.inBlackout = True
       else:
          self.render()
@@ -95,6 +95,25 @@ class DmxWidget(object):
 
    def close(self):
       self.com.close()
-   
+
    def timePrint(self, string):
-      print time.strftime("%H:%M:%S"), string
+      print time.strftime("%H%M%S"), "DmxWidget:", string
+
+class FakeDmxWidget (object):
+   def __init__ (self, comport):
+      self.timePrint("dmxWidgit.__init__(%s)" % (comport))
+
+   def setChannel (self, chan, val, autorender=False):
+      self.timePrint("dmxWidgit.setChannel("+str(chan)+", "+str(val)+")")
+
+   def clear (self):
+      self.timePrint("dmxWidgit.clear()")
+
+   def blackout (self):
+      self.timePrint("dmxWidgit.blackout()")
+
+   def render (self):
+      self.timePrint("dmxWidgit.render()")
+
+   def timePrint(self, string):
+      print time.strftime("%H%M%S"), "?!? Calling a fake", string
