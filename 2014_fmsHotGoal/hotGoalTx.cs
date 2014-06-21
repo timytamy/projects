@@ -5,11 +5,34 @@ using System.Net.Sockets;
 
 public class HotGoal {
     private const bool DEBUG = true;
-    private byte[] autoMsg = Encoding.ASCII.GetBytes("FMS:T000");
+    private string autoMsg = "FMS:T000";
+    private string tcpAddr = null;
+    private int tcpPort = 0;
     
-    private TcpClient tcpConn = new TcpClient();
+    private TcpClient tcpConn = null;
     
-    public HotGoal (string tcpAddr, int tcpPort) {
+    public HotGoal (string tcpAddrIn, int tcpPortIn) {
+        tcpAddr = tcpAddrIn;
+        tcpPort = tcpPortIn;
+        MakeTcpConnection(tcpAddr, tcpPort);
+    }
+    
+    public void TxAutoSig () {
+        try {
+            TimePrint("Tx: \"" + autoMsg + "\"");
+            Stream stm = tcpConn.GetStream();
+            byte[] msg = Encoding.ASCII.GetBytes(autoMsg);
+            stm.Write(msg, 0, msg.Length);
+        } catch (Exception e) {
+            TimePrint("Transmit faild:");
+            TimePrint("Connection closed, attempting re-connect");
+            tcpConn.Close();
+            MakeTcpConnection(tcpAddr, tcpPort);
+        }
+    }
+    
+    private void MakeTcpConnection (string tcpAddr, int tcpPort) {
+        tcpConn = new TcpClient();
         while (true) {
             try {
                 TimePrint("Connecting to " + tcpAddr + ":" + tcpPort);
@@ -23,17 +46,11 @@ public class HotGoal {
         }
     }
     
-    public void TxAutoSig () {
-        Stream stm = tcpConn.GetStream();
-        TimePrint("Tx: \"" + Encoding.ASCII.GetString(autoMsg) + "\"");
-        stm.Write(autoMsg, 0, autoMsg.Length);
-    }
-    
     private void TimePrint (string strIn) {
         if (DEBUG != true) return; // Escape if not debuging
         
-        string strPre = DateTime.Now.ToString("HHmmss");
-        Console.WriteLine(strPre + " " + strIn);
+        string strPre = DateTime.Now.ToString("HHmmss ");
+        Console.WriteLine(strPre + strIn);
     }
 }
 

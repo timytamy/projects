@@ -5,7 +5,7 @@ DEBUG = False
 
 #DMX Stuff
 RGB_MIX_COLD = [0, 0, 0]
-RGB_MIX_HOT = [255, 0, 0]
+RGB_MIX_HOT = [255, 255, 255]
 GOAL_DMX_PATCH = [
    [121], # BLU_L
    [127], # BLU_R
@@ -27,13 +27,13 @@ class HotGoalSystem(object):
 
    def __init__(self, comport):
       self.timePrint ("Connecting to DMX widget...")
-      self.dmx = mySimpleDmx.DmxWidget(comport)
+      self.dmx = mySimpleDmx.FakeDmxWidget(comport)
       self.timePrint("...DONE")
 
       if DEBUG:
          for i in range(0, 512+1):
             self.dmx.setChannel(i, 255, True)
-            time.sleep(0.1)
+            time.sleep(0.05)
             self.dmx.setChannel(i, 0, True)
          self.dmx.clear()
 

@@ -30,9 +30,9 @@ class DmxWidget(object):
       #open com
       self.com = None
       try:
-         self.com = serial.Serial(comport, baudrate=COM_BAUD, timeout=COM_TIMEOUT)
-         #self.com.baudrate = COM_BAUD
-         #self.com.timeout = COM_TIMEOUT
+         self.com = serial.Serial(comport)
+         self.com.baudrate = COM_BAUD
+         self.com.timeout = COM_TIMEOUT
       except:
          self.timePrint ("Could not open %s, aborting" % (comport))
          self.timePrint ("Hint: To see available serial ports run")
@@ -101,7 +101,7 @@ class DmxWidget(object):
 
 class FakeDmxWidget (object):
    def __init__ (self, comport):
-      self.timePrint("dmxWidgit.__init__(%s)" % (comport))
+      self.timePrint("dmxWidgit.__init__" + comport)
 
    def setChannel (self, chan, val, autorender=False):
       self.timePrint("dmxWidgit.setChannel("+str(chan)+", "+str(val)+")")

@@ -13,4 +13,5 @@ hotGoalTx.exe: hotGoalTx.cs
 all: $(OBJECTS) $(EXECUTABLES)
 
 clean:
-	rm *.pyc *.exe* $(EXECUTABLES)
+	rm $(EXECUTABLES)
+	rm *.exe* *.pyc

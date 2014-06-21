@@ -16,28 +16,28 @@ def timePrint(string):
 
 goals = hotGoalSystem.HotGoalSystem(COMPORT)
 
-socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 while True:
    try:
-      timePrint("Attempting to bind to socket...")
-      socket.bind((TCP_IP, TCP_PORT))
-      socket.listen(1)
+      timePrint("Binding to socket at " + str(TCP_IP) +":"+ str(TCP_PORT))
+      sock.bind((TCP_IP, TCP_PORT))
+      sock.listen(1)
       timePrint("...DONE")
       break #if succesful, break out of loop
    except:
       timePrint("...Error binding to socket, trying again")
       time.sleep(1)
-
+ 
 #TODO: This could probably be a bit more elegant/rhobust
 while True:
-   conn, addr = socket.accept()
+   conn, addr = sock.accept()
    timePrint("Connection recieved from " + str(addr))
 
    while True:
       msg = conn.recv(BUFFER_SIZE)
 
       if not msg: #if diconnected
-         timePrint("Connection closed by peer")
+         timePrint("Connection closed by peer,")
          timePrint("waiting for reconect")
          break
 
