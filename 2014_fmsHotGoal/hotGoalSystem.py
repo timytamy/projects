@@ -27,7 +27,8 @@ class HotGoalSystem(object):
 
    def __init__(self, comport):
       self.timePrint ("Connecting to DMX widget...")
-      self.dmx = mySimpleDmx.FakeDmxWidget(comport)
+      #self.dmx = mySimpleDmx.FakeDmxWidget(comport)
+      self.dmx = mySimpleDmx.DmxWidget(comport)
       self.timePrint("...DONE")
 
       if DEBUG:
