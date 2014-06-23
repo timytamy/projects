@@ -4,13 +4,14 @@ import hotGoalSystem
 
 TCP_IP = "127.0.0.1"
 TCP_PORT = 3132
-BUFFER_SIZE = 1024
-AUTO_START_MSG = "FMS:T000"
+MSG_SIZE = 32
+AUTO_START_MSG = "FIELD:T000"
 
-COMPORT = '/dev/ttyUSB0'
+COMPORT = "/dev/ttyUSB0"
 
-def timePrint(string):
+def timePrint (string):
    print time.strftime("%H%M%S"), string
+      
 
 #### Start of the main-ish function ####
 
@@ -27,6 +28,9 @@ while True:
    except:
       timePrint("...Error binding to socket, trying again")
       time.sleep(1)
+      
+      
+timePrint("Wating for connection...")
  
 #TODO: This could probably be a bit more elegant/rhobust
 while True:
@@ -34,15 +38,23 @@ while True:
    timePrint("Connection recieved from " + str(addr))
 
    while True:
-      msg = conn.recv(BUFFER_SIZE)
+      print "\n" + "*"*80
+      goals.printFirstHotGoal()
+      timePrint("Hot Goal system IS ready")
+      print "*"*80 + "\n"
+      
+      msg = conn.recv(MSG_SIZE)
 
       if not msg: #if diconnected
-         timePrint("Connection closed by peer,")
-         timePrint("waiting for reconect")
+         print "\n" + "*"*80
+         timePrint("Connection closed by peer, Waiting for reconnect")
+         timePrint("Hot Goal system IS NOT ready")
+         print "*"*80 + "\n"
          break
 
+      msg = msg.translate(None, '\n')
       timePrint("Rx: \"" + str(msg) + "\"")
-      if msg == AUTO_START_MSG:
+      if AUTO_START_MSG in msg:
          timePrint("Starting hotGoalSequence")
          goals.runAutoSequence()
 

@@ -27,8 +27,8 @@ class HotGoalSystem(object):
 
    def __init__(self, comport):
       self.timePrint ("Connecting to DMX widget...")
-      #self.dmx = mySimpleDmx.FakeDmxWidget(comport)
-      self.dmx = mySimpleDmx.DmxWidget(comport)
+      self.dmx = mySimpleDmx.FakeDmxWidget(comport)
+      #self.dmx = mySimpleDmx.DmxWidget(comport)
       self.timePrint("...DONE")
 
       if DEBUG:
@@ -70,17 +70,21 @@ class HotGoalSystem(object):
       self.renderGoals()
 
       self.timePrint("****Hot goal sequence complete****")
-
+      
       self.randomiseHotGoal()
-######## Helper Functions ########
-
+         
+   def printFirstHotGoal (self):
+      if self.firstHotGoal == LEFT:
+         self.timePrint("The LEFT goal will be hot first")
+      else:
+         self.timePrint("The RIGHT goal will be hot first")
+         
+################ Helper Functions ################
    def randomiseHotGoal (self):
       if random.randint(0,1) == 0:
          self.firstHotGoal = LEFT
-         self.starPrint("The LEFT goal will be hot first")
       else:
          self.firstHotGoal = RIGHT
-         self.starPrint("The RIGHT goal will be hot first")
 
    def swapHotGoals (self, goalA, goalB):
       if self.goalIsHot[goalA] == True:
@@ -111,11 +115,6 @@ class HotGoalSystem(object):
 
    def renderGoals (self):
       self.dmx.render()
-
-   def starPrint (self, string):
-      print "*"*80
-      self.timePrint(string)
-      print "*"*80
 
    def timePrint (self, string):
       print time.strftime("%H%M%S"), string

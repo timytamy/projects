@@ -101,7 +101,7 @@ class DmxWidget(object):
 
 class FakeDmxWidget (object):
    def __init__ (self, comport):
-      self.timePrint("dmxWidgit.__init__" + comport)
+      self.timePrint("dmxWidgit.__init__(" + comport + ")")
 
    def setChannel (self, chan, val, autorender=False):
       self.timePrint("dmxWidgit.setChannel("+str(chan)+", "+str(val)+")")
