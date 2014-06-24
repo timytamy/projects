@@ -87,7 +87,7 @@ public class TestProgram {
 
     public static void Main () {
 
-        HotGoal hotGoal = new HotGoal("127.0.0.1", 3132);
+        HotGoal hotGoal = new HotGoal("10.0.1.132", 3132);
         for (int i = 0; i < 5; i++) {
             hotGoal.TxHeartbeat();
             System.Threading.Thread.Sleep(1000);

@@ -1,4 +1,5 @@
 import random
+import socket
 import time
 import mySimpleDmx
 
@@ -8,10 +9,10 @@ DEBUG = False
 RGB_MIX_COLD = [0, 0, 0]
 RGB_MIX_HOT = [255, 255, 255]
 GOAL_DMX_PATCH = [
-   [121], # BLU_L
-   [127], # BLU_R
-   [133], # RED_L
-   [139]  # RED_R
+    [121], # BLU_L
+    [127], # BLU_R
+    [133], # RED_L
+    [139]  # RED_R
 ]
 
 NUM_GOALS = 4
@@ -26,97 +27,105 @@ COLD, HOT = 0, 255
 
 class HotGoalSystem (object):
 
-   def __init__(self, comport):
-      self.timePrint ("Connecting to DMX widget...")
-      self.dmx = mySimpleDmx.FakeDmxWidget(comport)
-      #self.dmx = mySimpleDmx.DmxWidget(comport)
-      self.timePrint("...DONE")
+    def __init__(self, comport):
+        self.timePrint ("Connecting to DMX widget...")
+        self.dmx = mySimpleDmx.FakeDmxWidget(comport)
+        #self.dmx = mySimpleDmx.DmxWidget(comport)
+        self.timePrint("...DONE")
 
-      if DEBUG:
-         for i in range(0, 256+1):
-            self.dmx.setChannel(i, 255, True)
-            time.sleep(0.05)
-            self.dmx.setChannel(i, 0, True)
-         self.dmx.clear()
+        if DEBUG:
+            for i in range(0, 256+1):
+                self.dmx.setChannel(i, 255, True)
+                time.sleep(0.05)
+                self.dmx.setChannel(i, 0, True)
+            self.dmx.clear()
 
-      self.goalIsHot = [False]*NUM_GOALS
+        self.goalIsHot = [False]*NUM_GOALS
 
-      self.firstHotGoal = None
-      self.randomiseHotGoal()
+        self.firstHotGoal = None
+        self.randomiseHotGoal()
 
-   def runAutoSequence (self):
-      self.timePrint("****Starting hot goal sequence****")
-      self.setAllGoalsCold()
+    def runAutoSequence (self):
+        self.timePrint("****Starting hot goal sequence****")
+        self.setAllGoalsCold()
 
-      if (self.firstHotGoal == LEFT):
-         self.setGoalTemp(BLU_L, HOT)
-         self.setGoalTemp(RED_L, HOT)
-      else:
-         self.setGoalTemp(BLU_R, HOT)
-         self.setGoalTemp(RED_R, HOT)
+        if (self.firstHotGoal == LEFT):
+            self.setGoalTemp(BLU_L, HOT)
+            self.setGoalTemp(RED_L, HOT)
+        else:
+            self.setGoalTemp(BLU_R, HOT)
+            self.setGoalTemp(RED_R, HOT)
 
-      self.renderGoals()
+        self.renderGoals()
 
-      time.sleep(5)
+        time.sleep(5)
 
-      self.timePrint("********Swapping hot goals********")
-      self.swapHotGoals(BLU_L, BLU_R)
-      self.swapHotGoals(RED_L, RED_R)
+        self.timePrint("********Swapping hot goals********")
+        self.swapHotGoals(BLU_L, BLU_R)
+        self.swapHotGoals(RED_L, RED_R)
 
-      self.renderGoals()
+        self.renderGoals()
 
-      time.sleep(5)
+        time.sleep(5)
 
-      self.setAllGoalsCold()
-      self.renderGoals()
+        self.setAllGoalsCold()
+        self.renderGoals()
 
-      self.timePrint("****Hot goal sequence complete****")
-      
-      self.randomiseHotGoal()
-         
-   def printFirstHotGoal (self):
-      if (self.firstHotGoal == LEFT):
-         self.timePrint("The LEFT goal will be hot first")
-      else:
-         self.timePrint("The RIGHT goal will be hot first")
-         
+        self.timePrint("****Hot goal sequence complete****")
+        
+        self.randomiseHotGoal()
+            
+    def printFirstHotGoal (self):
+        if (self.firstHotGoal == LEFT):
+            self.timePrint("The LEFT goal will be hot first")
+        else:
+            self.timePrint("The RIGHT goal will be hot first")
+            
 ################ Helper Functions ################
-   def randomiseHotGoal (self):
-      if (random.randint(0,1) == 0):
-         self.firstHotGoal = LEFT
-      else:
-         self.firstHotGoal = RIGHT
+    def randomiseHotGoal (self):
+        if (random.randint(0,1) == 0):
+            self.firstHotGoal = LEFT
+        else:
+            self.firstHotGoal = RIGHT
 
-   def swapHotGoals (self, goalA, goalB):
-      if (self.goalIsHot[goalA] == True):
-         self.setGoalTemp(goalA, COLD)
-         self.setGoalTemp(goalB, HOT)
-      else:
-         self.setGoalTemp(goalB, COLD)
-         self.setGoalTemp(goalA, HOT)
+    def swapHotGoals (self, goalA, goalB):
+        if (self.goalIsHot[goalA] == True):
+            self.setGoalTemp(goalA, COLD)
+            self.setGoalTemp(goalB, HOT)
+        else:
+            self.setGoalTemp(goalB, COLD)
+            self.setGoalTemp(goalA, HOT)
 
-   def setGoalTemp (self, goal, temp, val = [0]*3):
-      if (temp == HOT):
-         val = RGB_MIX_HOT
-         self.goalIsHot[goal] = True
-      elif (temp == COLD):
-         val = RGB_MIX_COLD
-         self.goalIsHot[goal] = False
-      else:
-         return
+    def setGoalTemp (self, goal, temp, val = [0]*3):
+        if (temp == HOT):
+            val = RGB_MIX_HOT
+            self.goalIsHot[goal] = True
+        elif (temp == COLD):
+            val = RGB_MIX_COLD
+            self.goalIsHot[goal] = False
+        else:
+            return
 
-      for channel in GOAL_DMX_PATCH[goal]:
-         self.dmx.setChannel(channel+0, val[0])
-         self.dmx.setChannel(channel+1, val[1])
-         self.dmx.setChannel(channel+2, val[2])
+        for channel in GOAL_DMX_PATCH[goal]:
+            self.dmx.setChannel(channel+0, val[0])
+            self.dmx.setChannel(channel+1, val[1])
+            self.dmx.setChannel(channel+2, val[2])
 
-   def setAllGoalsCold (self):
-      for goal in range(0, NUM_GOALS):
-         self.setGoalTemp(goal, COLD)
+    def setAllGoalsCold (self):
+        for goal in range(0, NUM_GOALS):
+            self.setGoalTemp(goal, COLD)
 
-   def renderGoals (self):
-      self.dmx.render()
+    def renderGoals (self):
+        self.dmx.render()
 
-   def timePrint (self, string):
-      print time.strftime("%H%M%S"), string
-         
+    def timePrint (self, string):
+        print time.strftime("%H%M%S"), string
+            
+            
+# Other-non goal object support code
+def getLocalIp():
+    # Copied and modified from http://stackoverflow.com/a/23822431
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+    sock.connect(('<broadcast>', 0))
+    return sock.getsockname()[0]
