@@ -27,7 +27,7 @@ def makeTcpConnection():
 def txMessage(message):
    timePrint("TX: \"" + message + "\"")
    while (len(message) < MSG_SIZE):
-      message = message + "\n"
+      message = message + "\0"
       
    try:
       sock.send(message)
@@ -46,7 +46,9 @@ for i in range(0, 5):
    time.sleep(1)
 
 while True:
+   txMessage("HBEAT:" + time.strftime("%H%M%S"))
    txMessage(AUTO_START_MSG)
+   txMessage("HBEAT:" + time.strftime("%H%M%S"))
    for i in range(0, 15):
       txMessage("HBEAT:" + time.strftime("%H%M%S"))
       time.sleep(1)

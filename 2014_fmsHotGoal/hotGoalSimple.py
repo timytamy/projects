@@ -10,5 +10,3 @@ while True:
    goals.timePrint("Press Enter to start the hot goal sequence")
    raw_input()
    goals.runAutoSequence()
-   
-

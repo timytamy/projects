@@ -20,7 +20,7 @@ goals = hotGoalSystem.HotGoalSystem(COMPORT)
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 while True:
    try:
-      timePrint("Binding to socket at " + str(TCP_IP) +":"+ str(TCP_PORT))
+      timePrint("Binding to socket " + str(TCP_IP) +":"+ str(TCP_PORT))
       sock.bind((TCP_IP, TCP_PORT))
       sock.listen(1)
       timePrint("...DONE")
@@ -52,7 +52,7 @@ while True:
          print "*"*80 + "\n"
          break
 
-      msg = msg.translate(None, '\n')
+      msg = msg.translate(None, '\0') # Removes padding
       timePrint("Rx: \"" + str(msg) + "\"")
       if AUTO_START_MSG in msg:
          timePrint("Starting hotGoalSequence")

@@ -8,7 +8,7 @@ public class HotGoal {
     private const bool DEBUG = true;
 
     // Message to send to python script
-    private string autoMsg = "FIELD:T000";
+    private const string AUTO_START_MSG = "FIELD:T000";
 
     // TCP stuff
     private TcpClient tcpConn = null;
@@ -23,11 +23,13 @@ public class HotGoal {
     }
 
     public void TxAutoSig () {
-        TxMessage(autoMsg);
+        TxHeartbeat();
+        TxMessage(AUTO_START_MSG);
+        TxHeartbeat();
     }
 
     public void TxHeartbeat () {
-        TxMessage("HBEAT:" + DateTime.Now.ToString("HHmmss"));
+        TxMessage("HBEAT:" + DateTime.Now.ToString("HHmmssfff"));
     }
 
     private void MakeTcpConnection () {
@@ -48,8 +50,17 @@ public class HotGoal {
     }
 
     private void TxMessage (string message) {
+        if (message.Length > MSG_SIZE) {
+            TimePrint("message \"" + message + "\" is too long");
+            return;
+        }
+
         TimePrint("Tx: \"" + message + "\"");
-        while (message.Length < MSG_SIZE) message = (message + "\n");
+
+        while (message.Length < MSG_SIZE){
+            message = (message + "\0");
+        }
+
         byte[] msgBytes = Encoding.ASCII.GetBytes(message);
 
         try {

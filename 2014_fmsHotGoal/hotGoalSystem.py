@@ -1,4 +1,5 @@
-import random, time
+import random
+import time
 import mySimpleDmx
 
 DEBUG = False
@@ -23,7 +24,7 @@ RED_R = 3
 LEFT, RIGHT = 0, 1
 COLD, HOT = 0, 255
 
-class HotGoalSystem(object):
+class HotGoalSystem (object):
 
    def __init__(self, comport):
       self.timePrint ("Connecting to DMX widget...")
@@ -32,7 +33,7 @@ class HotGoalSystem(object):
       self.timePrint("...DONE")
 
       if DEBUG:
-         for i in range(0, 512+1):
+         for i in range(0, 256+1):
             self.dmx.setChannel(i, 255, True)
             time.sleep(0.05)
             self.dmx.setChannel(i, 0, True)
@@ -43,11 +44,11 @@ class HotGoalSystem(object):
       self.firstHotGoal = None
       self.randomiseHotGoal()
 
-   def runAutoSequence(self):
+   def runAutoSequence (self):
       self.timePrint("****Starting hot goal sequence****")
       self.setAllGoalsCold()
 
-      if self.firstHotGoal == LEFT:
+      if (self.firstHotGoal == LEFT):
          self.setGoalTemp(BLU_L, HOT)
          self.setGoalTemp(RED_L, HOT)
       else:
@@ -74,20 +75,20 @@ class HotGoalSystem(object):
       self.randomiseHotGoal()
          
    def printFirstHotGoal (self):
-      if self.firstHotGoal == LEFT:
+      if (self.firstHotGoal == LEFT):
          self.timePrint("The LEFT goal will be hot first")
       else:
          self.timePrint("The RIGHT goal will be hot first")
          
 ################ Helper Functions ################
    def randomiseHotGoal (self):
-      if random.randint(0,1) == 0:
+      if (random.randint(0,1) == 0):
          self.firstHotGoal = LEFT
       else:
          self.firstHotGoal = RIGHT
 
    def swapHotGoals (self, goalA, goalB):
-      if self.goalIsHot[goalA] == True:
+      if (self.goalIsHot[goalA] == True):
          self.setGoalTemp(goalA, COLD)
          self.setGoalTemp(goalB, HOT)
       else:
@@ -95,10 +96,10 @@ class HotGoalSystem(object):
          self.setGoalTemp(goalA, HOT)
 
    def setGoalTemp (self, goal, temp, val = [0]*3):
-      if temp == HOT:
+      if (temp == HOT):
          val = RGB_MIX_HOT
          self.goalIsHot[goal] = True
-      elif temp == COLD:
+      elif (temp == COLD):
          val = RGB_MIX_COLD
          self.goalIsHot[goal] = False
       else:
