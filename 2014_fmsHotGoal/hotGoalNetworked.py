@@ -3,7 +3,8 @@ import socket
 import time
 import hotGoalSystem
 
-TCP_ADDR = hotGoalSystem.getLocalIp() #"127.0.0.1"
+TCP_ADDR = hotGoalSystem.getLocalIp()
+#TCP_ADDR = "127.0.0.1"
 TCP_PORT = 3132
 MSG_SIZE = 32
 AUTO_START_MSG = "FIELD:T000"

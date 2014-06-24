@@ -118,4 +118,4 @@ class FakeDmxWidget (object):
         self.fakePrint("render()")
 
     def fakePrint (self, string):
-        print time.strftime("%H%M%S"), "?!? fake dmxWidget.", string
+        print time.strftime("%H%M%S") + " ?!? fake dmxWidget." + string

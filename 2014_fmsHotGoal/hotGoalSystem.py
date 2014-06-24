@@ -28,10 +28,10 @@ COLD, HOT = 0, 255
 class HotGoalSystem (object):
 
     def __init__(self, comport):
-        self.timePrint ("Connecting to DMX widget...")
+        timePrint ("Connecting to DMX widget...")
         self.dmx = mySimpleDmx.FakeDmxWidget(comport)
         #self.dmx = mySimpleDmx.DmxWidget(comport)
-        self.timePrint("...DONE")
+        timePrint("...DONE")
 
         if DEBUG:
             for i in range(0, 256+1):
@@ -46,7 +46,7 @@ class HotGoalSystem (object):
         self.randomiseHotGoal()
 
     def runAutoSequence (self):
-        self.timePrint("****Starting hot goal sequence****")
+        timePrint("****Starting hot goal sequence****")
         self.setAllGoalsCold()
 
         if (self.firstHotGoal == LEFT):
@@ -60,7 +60,7 @@ class HotGoalSystem (object):
 
         time.sleep(5)
 
-        self.timePrint("********Swapping hot goals********")
+        timePrint("********Swapping hot goals********")
         self.swapHotGoals(BLU_L, BLU_R)
         self.swapHotGoals(RED_L, RED_R)
 
@@ -71,15 +71,15 @@ class HotGoalSystem (object):
         self.setAllGoalsCold()
         self.renderGoals()
 
-        self.timePrint("****Hot goal sequence complete****")
+        timePrint("****Hot goal sequence complete****")
         
         self.randomiseHotGoal()
             
     def printFirstHotGoal (self):
         if (self.firstHotGoal == LEFT):
-            self.timePrint("The LEFT goal will be hot first")
+            timePrint("The LEFT goal will be hot first")
         else:
-            self.timePrint("The RIGHT goal will be hot first")
+            timePrint("The RIGHT goal will be hot first")
             
 ################ Helper Functions ################
     def randomiseHotGoal (self):
@@ -118,14 +118,16 @@ class HotGoalSystem (object):
     def renderGoals (self):
         self.dmx.render()
 
-    def timePrint (self, string):
-        print time.strftime("%H%M%S"), string
+# Other helper functions
+def timePrint (string):
+        print time.strftime("%H%M%S"), string            
             
-            
-# Other-non goal object support code
 def getLocalIp():
     # Copied and modified from http://stackoverflow.com/a/23822431
-    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-    sock.connect(('<broadcast>', 0))
-    return sock.getsockname()[0]
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+        sock.connect(('<broadcast>', 0))
+        return sock.getsockname()[0]
+    except:
+        return "127.0.0.1"
