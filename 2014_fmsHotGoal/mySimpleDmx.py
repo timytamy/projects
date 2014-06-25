@@ -1,7 +1,9 @@
 ## Copied and moidifed from
 ## https://github.com/c0z3n/pySimpleDMX
 
-import serial, sys, time
+import serial
+import sys
+import time
 
 COM_BAUD = 57600
 COM_TIMEOUT = 1

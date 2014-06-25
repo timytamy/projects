@@ -6,13 +6,14 @@ import mySimpleDmx
 DEBUG = False
 
 #DMX Stuff
-RGB_MIX_COLD = [0, 0, 0]
-RGB_MIX_HOT = [255, 255, 255]
+RGB_COLD = [0, 0, 0]
+RGB_HOT = [255, 255, 255]
+RGB_CLEAR = [0, 255, 0]
 GOAL_DMX_PATCH = [
     [121], # BLU_L
-    [127], # BLU_R
-    [133], # RED_L
-    [139]  # RED_R
+    [133], # BLU_R
+    [145], # RED_L
+    [157]  # RED_R
 ]
 
 NUM_GOALS = 4
@@ -23,7 +24,7 @@ RED_L = 2
 RED_R = 3
 
 LEFT, RIGHT = 0, 1
-COLD, HOT = 0, 255
+COLD, HOT = "COLD", "HOT"
 
 class HotGoalSystem (object):
 
@@ -74,6 +75,15 @@ class HotGoalSystem (object):
         timePrint("****Hot goal sequence complete****")
         
         self.randomiseHotGoal()
+    
+    def setAllClear (self):
+        self.setAllRgb(RGB_CLEAR[0], RGB_CLEAR[1], RGB_CLEAR[2])
+    
+    def setAllRgb (self, r, g, b, render = True):
+        for goal in range(0, NUM_GOALS):
+            self.setGoalRgb(goal, r, g, b)
+        if (render):
+            self.renderGoals()
             
     def printFirstHotGoal (self):
         if (self.firstHotGoal == LEFT):
@@ -88,6 +98,11 @@ class HotGoalSystem (object):
         else:
             self.firstHotGoal = RIGHT
 
+    def setAllGoalsCold (self):
+        for goal in range(0, NUM_GOALS):
+            self.setGoalTemp(goal, COLD)
+        self.renderGoals()
+
     def swapHotGoals (self, goalA, goalB):
         if (self.goalIsHot[goalA] == True):
             self.setGoalTemp(goalA, COLD)
@@ -96,38 +111,36 @@ class HotGoalSystem (object):
             self.setGoalTemp(goalB, COLD)
             self.setGoalTemp(goalA, HOT)
 
-    def setGoalTemp (self, goal, temp, val = [0]*3):
+    def setGoalTemp (self, goal, temp):
         if (temp == HOT):
-            val = RGB_MIX_HOT
+            self.setGoalRgb(goal, RGB_HOT[0], RGB_HOT[1], RGB_HOT[2])
             self.goalIsHot[goal] = True
         elif (temp == COLD):
-            val = RGB_MIX_COLD
+            self.setGoalRgb(goal, RGB_COLD[0], RGB_COLD[1], RGB_COLD[2])
             self.goalIsHot[goal] = False
-        else:
-            return
 
+    def setGoalRgb (self, goal, r, g, b, render = False):
+        self.goalIsHot[goal] = False
         for channel in GOAL_DMX_PATCH[goal]:
-            self.dmx.setChannel(channel+0, val[0])
-            self.dmx.setChannel(channel+1, val[1])
-            self.dmx.setChannel(channel+2, val[2])
-
-    def setAllGoalsCold (self):
-        for goal in range(0, NUM_GOALS):
-            self.setGoalTemp(goal, COLD)
+            self.dmx.setChannel(channel+0, r)
+            self.dmx.setChannel(channel+1, g)
+            self.dmx.setChannel(channel+2, b)
+        if (render):
+            self.renderGoals();
 
     def renderGoals (self):
         self.dmx.render()
 
 # Other helper functions
 def timePrint (string):
-        print time.strftime("%H%M%S"), string            
+    print time.strftime("%H%M%S"), string            
             
 def getLocalIp():
     # Copied and modified from http://stackoverflow.com/a/23822431
     try:
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-        sock.connect(('<broadcast>', 0))
+        sock.connect(('10.0.0.4', 0)) # FMS Router Address
         return sock.getsockname()[0]
     except:
         return "127.0.0.1"

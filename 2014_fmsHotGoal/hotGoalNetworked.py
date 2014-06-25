@@ -4,16 +4,14 @@ import time
 import hotGoalSystem
 
 TCP_ADDR = hotGoalSystem.getLocalIp()
-#TCP_ADDR = "127.0.0.1"
 TCP_PORT = 3132
 MSG_SIZE = 32
-AUTO_START_MSG = "FIELD:T000"
+MSG_AUTO_START = "FIELD:T000"
+MSG_PRE_RGB = "DORGB:"
 
 COMPORT = "/dev/ttyUSB0"
 
-def timePrint (string):
-    print time.strftime("%H%M%S"), string
-        
+timePrint = hotGoalSystem.timePrint
 
 #### Start of the main-ish function ####
 
@@ -53,11 +51,22 @@ while True:
             timePrint("Hot Goal system IS NOT ready")
             print "*"*80 + "\n"
             break
-
+            
         msg = msg.translate(None, '\0') # Removes padding
         timePrint("Rx: \"" + str(msg) + "\"")
-        if AUTO_START_MSG in msg:
+        if (MSG_AUTO_START in msg):
             timePrint("Starting hotGoalSequence")
             goals.runAutoSequence()
+            
+        elif (MSG_PRE_RGB in msg):
+            timePrint("Setting goals to RGB val")
+            try:
+                msg = msg.replace(chr(1), chr(0))
+                r = ord(msg[5+1])
+                g = ord(msg[5+2])
+                b = ord(msg[5+3])
+                goals.setAllRgb(r, g, b)
+            except:
+                timePrint("Invalid RGB values")
 
     conn.close()

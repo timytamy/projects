@@ -8,7 +8,9 @@ public class HotGoal {
     private const bool DEBUG = true;
 
     // Message to send to python script
-    private const string AUTO_START_MSG = "FIELD:T000";
+    private const string MSG_AUTO_START = "FIELD:T000";
+    private const string MSG_PRE_HBEAT = "HBEAT:";
+    private const string MSG_PRE_RGB = "DORGB:";
 
     // TCP stuff
     private TcpClient tcpConn = null;
@@ -24,15 +26,32 @@ public class HotGoal {
 
     public void TxAutoSig () {
         TxHeartbeat();
-        TxMessage(AUTO_START_MSG);
+        TxMessage(MSG_AUTO_START);
+        TxHeartbeat();
+    }
+    
+    public void TxHeartbeat () {
+        TxMessage(MSG_PRE_HBEAT + DateTime.Now.ToString("HHmmssfff"));
+    }
+
+    public void SetRgbValues(byte r, byte g, byte b) {
+        TxHeartbeat();
+        
+        TimePrint("Setting RGB values to " + r + ", " + g + ", " + b);
+
+        if (r == 0) r = 1;
+        if (g == 0) g = 1;
+        if (b == 0) b = 1;
+        
+        byte[] rgb = new byte[3] {r, g, b};
+        string rgbString = Encoding.GetEncoding(28591).GetString(rgb);
+
+        TxMessage(MSG_PRE_RGB + rgbString);
+        
         TxHeartbeat();
     }
 
-    public void TxHeartbeat () {
-        TxMessage("HBEAT:" + DateTime.Now.ToString("HHmmssfff"));
-    }
-
-    private void MakeTcpConnection () {
+    public void MakeTcpConnection () {
         tcpConn = new TcpClient();
 
         while (true) {
@@ -48,24 +67,24 @@ public class HotGoal {
             }
         }
     }
+    
 
-    private void TxMessage (string message) {
-        if (message.Length > MSG_SIZE) {
-            TimePrint("message \"" + message + "\" is too long");
+    private void TxMessage (string msg) {
+        if (msg.Length > MSG_SIZE) {
+            TimePrint("message \"" + msg + "\" is too long");
             return;
         }
 
-        TimePrint("Tx: \"" + message + "\"");
+        TimePrint("Tx: \"" + msg + "\"");
 
-        while (message.Length < MSG_SIZE){
-            message = (message + "\0");
+        while (msg.Length < MSG_SIZE) {
+            msg = (msg + "\0");
         }
 
-        byte[] msgBytes = Encoding.ASCII.GetBytes(message);
-
+        byte[] msgBytes = Encoding.GetEncoding(28591).GetBytes(msg);
+        
         try {
-            Stream stm = null;
-            stm = tcpConn.GetStream();
+            Stream stm = tcpConn.GetStream();
             stm.Write(msgBytes, 0, msgBytes.Length);
         } catch (Exception ex) {
             TimePrint("Transmit faild:");
@@ -87,9 +106,11 @@ public class TestProgram {
 
     public static void Main () {
 
-        HotGoal hotGoal = new HotGoal("127.0.0.1", 3132);
+        HotGoal hotGoal = new HotGoal("10.0.1.122", 3132);
+        
         for (int i = 0; i < 5; i++) {
             hotGoal.TxHeartbeat();
+            hotGoal.SetRgbValues(29, 1, 201);
             System.Threading.Thread.Sleep(1000);
         }
 
@@ -97,6 +118,7 @@ public class TestProgram {
             hotGoal.TxAutoSig();
             for (int i = 0; i < 15; i++) {
                 hotGoal.TxHeartbeat();
+                hotGoal.SetRgbValues(29, 123, 0);
                 System.Threading.Thread.Sleep(1000);
             }
         }

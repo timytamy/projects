@@ -10,8 +10,7 @@ TCP_ADDR = hotGoalSystem.getLocalIp()
 TCP_PORT = 3132
 MSG_SIZE = 32
 
-def timePrint(string):
-    print time.strftime("%H%M%S"), string
+timePrint = hotGoalSystem.timePrint
 
 def makeTcpConnection():
     global sock
@@ -55,6 +54,8 @@ makeTcpConnection()
 
 for i in range(0, 5):
     txMessage("HBEAT:" + time.strftime("%H%M%S"))
+    msg = "DORGB:" + chr(99) + chr(2) + chr(233)
+    txMessage(msg)
     time.sleep(1)
 
 while True:
