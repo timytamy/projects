@@ -3,6 +3,9 @@ import socket
 import time
 import hotGoalSystem
 
+DEBUG = True
+PRINT_RX = False
+
 TCP_ADDR = hotGoalSystem.getLocalIp()
 TCP_PORT = 3132
 MSG_SIZE = 32
@@ -34,13 +37,12 @@ while True:
 timePrint("Wating for connection...")
  
 #TODO: This could probably be a bit more elegant/rhobust
-newinfo = int(0)
 while True:
     conn, addr = sock.accept()
     timePrint("Connection recieved from " + str(addr))
-
+    newinfo = int(0)
     while True:
-        if  (newinfo != 0):
+        if  (newinfo == 0):
             print "\n" + "*"*80
             goals.printFirstHotGoal()
             timePrint("Hot Goal system IS ready")
@@ -61,7 +63,7 @@ while True:
             break
             
         msg = msg.translate(None, '\0') # Removes padding
-        #timePrint("Rx: \"" + str(msg) + "\"")
+        if (PRINT_RX): timePrint("Rx: \"" + str(msg) + "\"")
 
         if (MSG_AUTO_START in msg):
             newinfo = 0            
@@ -70,11 +72,15 @@ while True:
         elif (MSG_PRE_RGB in msg):
             newinfo = 0
             timePrint("Setting goals to RGB val")
+            r = 0; g = 0; b = 0;
             try:
                 msg = msg.replace(chr(1), chr(0)) # Accounts for 0 vals
                 r = ord(msg[6+0])
                 g = ord(msg[6+1])
                 b = ord(msg[6+2])
+                if (DEBUG):
+                    debugString = str(r) + " " + str(g) + " " + str(b)
+                    timePrint("All @ (" + debugString + ")")
                 goals.setAllRgb(r, g, b)
             except:
                 timePrint("Invalid RGB values")
@@ -87,9 +93,12 @@ while True:
                     r = ord(msg[6+(goal*3)+0])
                     g = ord(msg[6+(goal*3)+1])
                     b = ord(msg[6+(goal*3)+2])
+                    if (DEBUG):
+                        debugString = str(r) +" "+ str(g) +" "+ str(b)
+                        timePrint(str(goal) + " @ (" + debugString + ")")
                     goals.setGoalRgb(goal, r, g, b)
+                goals.renderGoals()
             except:
-                timePrint("Invalid (each) RGB values")
-            goals.renderGoals()
+                timePrint("Invalid individual RGB values")
 
     conn.close()

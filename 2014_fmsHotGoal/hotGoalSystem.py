@@ -105,7 +105,7 @@ class HotGoalSystem (object):
             
 ################ Helper Functions ################
     def randomiseHotGoal (self):
-        if (random.randint(0,1) == 0):
+        if (random.randint(1,10) % 2):
             self.firstHotGoal = LEFT
         else:
             self.firstHotGoal = RIGHT
