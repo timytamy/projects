@@ -43,7 +43,7 @@ def txMessage(message):
         timePrint("Connection closed, attempting reconect")
         sock.close()
         makeTcpConnection()
-    
+
 
 #### Start of main program ####
 
@@ -54,14 +54,14 @@ makeTcpConnection()
 
 for i in range(0, 5):
     txMessage("HBEAT:" + time.strftime("%H%M%S"))
-    msg = "DORGB:" + chr(99) + chr(2) + chr(233)
-    txMessage(msg)
     time.sleep(1)
 
 while True:
     txMessage("HBEAT:" + time.strftime("%H%M%S"))
     txMessage(AUTO_START_MSG)
     txMessage("HBEAT:" + time.strftime("%H%M%S"))
+    
     for i in range(0, 15):
         txMessage("HBEAT:" + time.strftime("%H%M%S"))
+        txMessage("DORGB:" + chr(0) + chr(123) + chr(234))
         time.sleep(1)

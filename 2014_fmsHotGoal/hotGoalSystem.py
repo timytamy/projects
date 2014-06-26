@@ -30,8 +30,8 @@ class HotGoalSystem (object):
 
     def __init__(self, comport):
         timePrint ("Connecting to DMX widget...")
-        self.dmx = mySimpleDmx.FakeDmxWidget(comport)
-        #self.dmx = mySimpleDmx.DmxWidget(comport)
+        #self.dmx = mySimpleDmx.FakeDmxWidget(comport)
+        self.dmx = mySimpleDmx.DmxWidget(comport)
         timePrint("...DONE")
 
         if DEBUG:
@@ -82,8 +82,20 @@ class HotGoalSystem (object):
     def setAllRgb (self, r, g, b, render = True):
         for goal in range(0, NUM_GOALS):
             self.setGoalRgb(goal, r, g, b)
-        if (render):
+        if (render == True):
             self.renderGoals()
+
+    def setGoalRgb (self, goal, r, g, b, render = False):
+        self.goalIsHot[goal] = False
+        for channel in GOAL_DMX_PATCH[goal]:
+            self.dmx.setChannel(channel+0, r)
+            self.dmx.setChannel(channel+1, g)
+            self.dmx.setChannel(channel+2, b)
+        if (render == True):
+            self.renderGoals
+
+    def renderGoals (self):
+        self.dmx.render()
             
     def printFirstHotGoal (self):
         if (self.firstHotGoal == LEFT):
@@ -118,18 +130,6 @@ class HotGoalSystem (object):
         elif (temp == COLD):
             self.setGoalRgb(goal, RGB_COLD[0], RGB_COLD[1], RGB_COLD[2])
             self.goalIsHot[goal] = False
-
-    def setGoalRgb (self, goal, r, g, b, render = False):
-        self.goalIsHot[goal] = False
-        for channel in GOAL_DMX_PATCH[goal]:
-            self.dmx.setChannel(channel+0, r)
-            self.dmx.setChannel(channel+1, g)
-            self.dmx.setChannel(channel+2, b)
-        if (render):
-            self.renderGoals();
-
-    def renderGoals (self):
-        self.dmx.render()
 
 # Other helper functions
 def timePrint (string):
