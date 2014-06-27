@@ -8,15 +8,17 @@ DEBUG = False
 #DMX Stuff
 RGB_COLD = [0, 0, 0]
 RGB_HOT = [255, 255, 255]
-RGB_CLEAR = [0, 255, 0]
+RGB_END_ALL = [0, 255, 0]
+RGB_END = [255, 0, 0]
 GOAL_DMX_PATCH = [
-    [121], # BLU_L
-    [133], # BLU_R
-    [145], # RED_L
-    [157]  # RED_R
+    [121, 125, 129], # BLU_L
+    [133, 137, 141], # BLU_R
+    [145, 149, 153], # RED_L
+    [157, 161, 165]  # RED_R
 ]
 
 NUM_GOALS = 4
+NUM_FIX = 3
 
 BLU_L = 0
 BLU_R = 1
@@ -30,8 +32,8 @@ class HotGoalSystem (object):
 
     def __init__(self, comport):
         timePrint ("Connecting to DMX widget...")
-        #self.dmx = mySimpleDmx.FakeDmxWidget(comport)
-        self.dmx = mySimpleDmx.DmxWidget(comport)
+        self.dmx = mySimpleDmx.FakeDmxWidget(comport)
+        #self.dmx = mySimpleDmx.DmxWidget(comport)
         timePrint("...DONE")
 
         if DEBUG:
@@ -44,6 +46,7 @@ class HotGoalSystem (object):
         self.goalIsHot = [False]*NUM_GOALS
 
         self.firstHotGoal = None
+        random.seed()
         self.randomiseHotGoal()
 
     def runAutoSequence (self):
@@ -76,10 +79,29 @@ class HotGoalSystem (object):
         
         self.randomiseHotGoal()
     
-    def setAllClear (self):
-        self.setAllRgb(RGB_CLEAR[0], RGB_CLEAR[1], RGB_CLEAR[2])
+    def runCountDownSeq (self):
+        self.setAllGoalsCold()
+        self.setAllRgb(RGB_END_ALL[0], RGB_END_ALL[1], RGB_END_ALL[2])
+        self.renderGoals()
+        time.sleep(1)
+        for fixNum in range(0, NUM_FIX):
+            fixBlu = GOAL_DMX_PATCH[BLU_L][fixNum]
+            fixRed = GOAL_DMX_PATCH[RED_L][fixNum]
+            self.setFixRgb(fixBlu, RGB_END[0], RGB_END[1], RGB_END[2])
+            self.setFixRgb(fixRed, RGB_END[0], RGB_END[1], RGB_END[2])
+            self.renderGoals()
+            time.sleep(1)
+        
+        for fixNum in range(0, NUM_FIX):
+            fixBlu = GOAL_DMX_PATCH[BLU_R][fixNum]
+            fixRed = GOAL_DMX_PATCH[RED_R][fixNum]
+            self.setFixRgb(fixBlu, RGB_END[0], RGB_END[1], RGB_END[2])
+            self.setFixRgb(fixRed, RGB_END[0], RGB_END[1], RGB_END[2])
+            self.renderGoals()
+            time.sleep(1)
+
     
-    def setAllRgb (self, r, g, b, render = True):
+    def setAllRgb (self, r, g, b, render = False):
         for goal in range(0, NUM_GOALS):
             self.setGoalRgb(goal, r, g, b)
         if (render == True):
@@ -87,10 +109,8 @@ class HotGoalSystem (object):
 
     def setGoalRgb (self, goal, r, g, b, render = False):
         self.goalIsHot[goal] = False
-        for channel in GOAL_DMX_PATCH[goal]:
-            self.dmx.setChannel(channel+0, r)
-            self.dmx.setChannel(channel+1, g)
-            self.dmx.setChannel(channel+2, b)
+        for fix in GOAL_DMX_PATCH[goal]:
+            self.setFixRgb(fix, r, g, b)
         if (render == True):
             self.renderGoals
 
@@ -103,6 +123,14 @@ class HotGoalSystem (object):
         else:
             timePrint("The RIGHT goal will be hot first")
             
+    def haveFun (self):
+        for goal in range(0, NUM_GOALS):
+            r = random.randint(0, 255)
+            g = random.randint(0, 255)
+            b = random.randint(0, 255)
+            self.setGoalRgb(goal, r, g, b)
+        self.renderGoals()
+            
 ################ Helper Functions ################
     def randomiseHotGoal (self):
         if (random.randint(1,10) % 2):
@@ -113,7 +141,6 @@ class HotGoalSystem (object):
     def setAllGoalsCold (self):
         for goal in range(0, NUM_GOALS):
             self.setGoalTemp(goal, COLD)
-        self.renderGoals()
 
     def swapHotGoals (self, goalA, goalB):
         if (self.goalIsHot[goalA] == True):
@@ -130,6 +157,13 @@ class HotGoalSystem (object):
         elif (temp == COLD):
             self.setGoalRgb(goal, RGB_COLD[0], RGB_COLD[1], RGB_COLD[2])
             self.goalIsHot[goal] = False
+
+    def setFixRgb (self, fix, r, g, b, render = False):
+        self.dmx.setChannel(fix+0, r)
+        self.dmx.setChannel(fix+1, g)
+        self.dmx.setChannel(fix+2, b)
+        if (render == True):
+            self.renderGoals
 
 # Other helper functions
 def timePrint (string):
