@@ -9,7 +9,7 @@ public class HotGoal {
 
     // Messages to send to python script
     private const string MSG_AUTO_START = "FIELD:T000";
-    private const string MSG_COUNTDOWN = "FIELD:T144";
+    private const string MSG_COUNTDOWN = "FIELD:T140";
     private const string MSG_PRE_HBEAT = "HBEAT:";
     private const string MSG_PRE_RGB = "DORGB:";
     private const string MSG_PRE_RGB_EA = "EARGB:";
@@ -145,10 +145,10 @@ public class TestProgram {
     public static void Main () {
         byte[] temp = new byte[12]
           {0, 0, 0, 111, 111, 111, 222, 222, 222, 33, 33, 33};  
-        HotGoal hotGoal = new HotGoal("10.0.1.122", 3132);
+        HotGoal hotGoal = new HotGoal("10.0.100.101", 3132);
         //hotGoal.SetEaRgbValues(temp);
         //hotGoal.SetRgbValues(0, 123, 234);
-        hotGoal.TxCountDownSig();
+        //hotGoal.TxCountDownSig();
         for (int i = 0; i < 5; i++) {
             hotGoal.TxHeartbeat();
             System.Threading.Thread.Sleep(1000);
@@ -156,7 +156,7 @@ public class TestProgram {
 
         while (true) {
             //hotGoal.TxAutoSig();
-            hotGoal.SetEaRgbValues(temp);
+            //hotGoal.SetEaRgbValues(temp);
             //hotGoal.SetRgbValues(0, 123, 234);
             hotGoal.TxCountDownSig();
             for (int i = 0; i < 15; i++) {

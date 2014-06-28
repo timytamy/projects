@@ -1,18 +1,25 @@
 #!/usr/bin/env python
+import fileinput
 import socket
+import sys
 import time
 
-import hotGoalSystem
+import hotGoalSys
 
-AUTO_START_MSG = "FIELD:T000"
+timePrint = hotGoalSys.timePrint
+getLocalIp = hotGoalSys.getLocalIp
 
-TCP_ADDR = hotGoalSystem.getLocalIp()
+TCP_ADDR = "10.0.100.101" #getLocalIp()
 TCP_PORT = 3132
 MSG_SIZE = 32
+MSG_AUTO_START = "FIELD:T000"
+MSG_COUNTDOWN = "FIELD:T140"
+MSG_PRE_HBEAT = "HBEAT:"
+MSG_PRE_RGB = "DORGB:"
+MSG_PRE_RGB_EA = "EARGB:"
+MSG_HAVE_FUN  = "HVFUN:"
 
-timePrint = hotGoalSystem.timePrint
-
-def makeTcpConnection():
+def makeTcpConnection(tcpAddr, tcpPort):
     global sock
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -42,26 +49,38 @@ def txMessage(message):
         timePrint("Transmit faild:")
         timePrint("Connection closed, attempting reconect")
         sock.close()
-        makeTcpConnection()
+        makeTcpConnection(TCP_ADDR, TCP_PORT)
 
+def txAutoSig():
+    txMessage(MSG_AUTO_START)
+    
+def txCountDownSig ():
+    txMessage(MSG_COUNTDOWN);
+
+def txHeartbeat():
+    txMessage(MSG_PRE_HBEAT + time.strftime("%H%M%S"))
+    
+def txHaveFun():
+    txMessage(MSG_HAVE_FUN)
 
 #### Start of main program ####
 
-tcpAddr = TCP_ADDR
-tcpPort = TCP_PORT
+makeTcpConnection(TCP_ADDR, TCP_PORT)
 
-makeTcpConnection()
+if True:
+    line = sys.argv[1].lower()
+    if line in "auto":
+        while (True):
+            txAutoSig()
+            time.sleep(15)
 
-for i in range(0, 5):
-    txMessage("HBEAT:" + time.strftime("%H%M%S"))
-    time.sleep(1)
+    elif line in "countdown":
+        while (True):
+            txCountDownSig()
+            time.sleep(15)
 
-while True:
-    txMessage("HBEAT:" + time.strftime("%H%M%S"))
-    txMessage(AUTO_START_MSG)
-    txMessage("HBEAT:" + time.strftime("%H%M%S"))
+    elif line in "fun":
+        while (True):
+            time.sleep(0.1)
+            txHaveFun()
     
-    for i in range(0, 15):
-        txMessage("HBEAT:" + time.strftime("%H%M%S"))
-        txMessage("DORGB:" + chr(0) + chr(123) + chr(234))
-        time.sleep(1)

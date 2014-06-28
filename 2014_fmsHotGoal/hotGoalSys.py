@@ -5,11 +5,6 @@ import mySimpleDmx
 
 DEBUG = False
 
-#DMX Stuff
-RGB_COLD = [0, 0, 0]
-RGB_HOT = [255, 255, 255]
-RGB_END_ALL = [0, 255, 0]
-RGB_END = [255, 0, 0]
 GOAL_DMX_PATCH = [
     [121, 125, 129], # BLU_L
     [133, 137, 141], # BLU_R
@@ -28,12 +23,18 @@ RED_R = 3
 LEFT, RIGHT = 0, 1
 COLD, HOT = "COLD", "HOT"
 
+RGB_COLD = [0, 0, 0]
+RGB_HOT = [255, 255, 255]
+RGB_END_ALL = [0, 255, 0]
+RGB_END = [255, 0, 0]
+RGB_END_FLSH = [255, 255, 0]
+
 class HotGoalSystem (object):
 
     def __init__(self, comport):
         timePrint ("Connecting to DMX widget...")
-        self.dmx = mySimpleDmx.FakeDmxWidget(comport)
-        #self.dmx = mySimpleDmx.DmxWidget(comport)
+        #self.dmx = mySimpleDmx.FakeDmxWidget(comport)
+        self.dmx = mySimpleDmx.DmxWidget(comport)
         timePrint("...DONE")
 
         if DEBUG:
@@ -81,6 +82,15 @@ class HotGoalSystem (object):
     
     def runCountDownSeq (self):
         self.setAllGoalsCold()
+        self.renderGoals()
+        for i in range (0, (4)):
+            self.setAllRgb(RGB_END_FLSH[0], RGB_END_FLSH[1], RGB_END_FLSH[2])
+            self.renderGoals()
+            time.sleep(0.5)
+            self.setAllGoalsCold()
+            self.renderGoals()
+            time.sleep(0.5)
+            
         self.setAllRgb(RGB_END_ALL[0], RGB_END_ALL[1], RGB_END_ALL[2])
         self.renderGoals()
         time.sleep(1)

@@ -3,22 +3,21 @@ import socket
 import time
 import hotGoalSys
 
-DEBUG = False
-PRINT_RX = False
+timePrint = hotGoalSys.timePrint
+getLocalIp = hotGoalSys.getLocalIp
 
-TCP_ADDR = hotGoalSys.getLocalIp()
+DEBUG = False
+
+TCP_ADDR = getLocalIp()
 TCP_PORT = 3132
 MSG_SIZE = 32
 MSG_AUTO_START = "FIELD:T000"
-MSG_COUNTDOWN = "FIELD:T144"
+MSG_COUNTDOWN = "FIELD:T140"
 MSG_PRE_RGB = "DORGB:"
 MSG_PRE_RGB_EA = "EARGB:"
-
-AUTO_CNTDN_DELAY = (150-10-6)
+MSG_HAVE_FUN  = "HVFUN:"
 
 COMPORT = "/dev/ttyUSB0"
-
-timePrint = hotGoalSys.timePrint
 
 #### Start of the main-ish function ####
 
@@ -65,16 +64,12 @@ while True:
             break
             
         msg = msg.translate(None, '\0') # Removes padding
-        if (PRINT_RX or DEBUG): timePrint("Rx: \"" + str(msg) + "\"")
+        if (DEBUG): timePrint("Rx: \"" + str(msg) + "\"")
 
         if (MSG_AUTO_START in msg):
             newData = True
             timePrint("Starting hotGoalSequence")
             goals.runAutoSequence()
-            timePrint("Waiting until the end of match")
-            time.sleep(AUTO_CNTDN_DELAY)
-            timePrint("Starting countdown sequence")
-            goals.runCountDownSeq()
             
         elif (MSG_COUNTDOWN in msg):
             newData = True
@@ -113,6 +108,10 @@ while True:
                 goals.renderGoals()
             except:
                 timePrint("Invalid individual RGB values")
+        elif (MSG_HAVE_FUN in msg):
+            newData = True
+            timePrint("Having fun")
+            goals.haveFun()
             
 
     conn.close()
