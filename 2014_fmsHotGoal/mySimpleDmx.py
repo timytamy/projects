@@ -18,14 +18,15 @@ LABELS = {
     'TX_DMX_PACKET'             :6,
     'TX_RDM_PACKET_REQUEST'     :7,  #unused
     'RX_DMX_ON_CHANGE'          :8,  #unused
-    'RX_DMX_ON_CHANGE_PACKET'    :9,  #unused
+    'RX_DMX_ON_CHANGE_PACKET'   :9,  #unused
     'GET_WIDGET_SERIAL_NUM'     :10, #unused
     'TX_RDM_DISCOVERY_REQUEST'  :11  #unused
 }
 
 class DmxWidget (object):
+    def __init__(self, comport, verbose = False):
+        self.verbose = verbose
 
-    def __init__(self, comport):
         self.dmxFrame = [0]*DMX_FRAME_SIZE
         self.inBlackout = False
 
@@ -36,46 +37,52 @@ class DmxWidget (object):
             self.com.baudrate = COM_BAUD
             self.com.timeout = COM_TIMEOUT
         except:
-            self.timePrint ("Could not open %s, aborting" % (comport))
-            self.timePrint ("Hint: To see available serial ports run")
-            self.timePrint ("\"python -m serial.tools.list_ports\"")
-            sys.exit(0)
+            self.myPrint("TODO: LOTS OF NICE ERROR INFO HERE")
+            raise IOError("Could not open %s" %comport)
 
-        self.timePrint("Opened " + self.com.name)
+        self.myPrint("Opened " + self.com.name)
         self.clear()
 
-    #  takes channel and value arguments to set a channel level in the 
-    #  local dmx frame,
-    #to be rendered the next time the render() method is called
+    # takes channel and value arguments to set a channel level
+    # in the local dmx frame, to be rendered the next time the
+    # render() method is called
     def setChannel (self, chan, val, autorender=False):
         if (chan < 1) or (DMX_FRAME_SIZE < chan): return
         if val < 0: val=0
         if val > 255: val=255
+        val = int(round(val))
 
+        self.myPrint("Setting@" + chan + "@" + val)
         self.dmxFrame[chan] = val
 
         if autorender: self.render()
 
+    def readChannel (self, chan):
+        if (chan < 1) or (DMX_FRAME_SIZE < chan): return
+        return self.dmxFrame[chan]
+
     #  clears all channels to zero.
-    def clear(self):
+    def clear (self):
+        self.myPrint("Clearing all channels to 0")
         self.dmxFrame = [0]*DMX_FRAME_SIZE
         self.render()
 
     #  toggles blackout
     def blackout (self):
         if self.inBlackout == False:
-            self.tempDmxFrame = list(self.dmxFrame)
+            tempDmxFrame = list(self.dmxFrame)
             self.clear()
-            self.dmxFrame = list(self.tempDmxFrame)
+            self.dmxFrame = list(tempDmxFrame)
             self.inBlackout = True
         else:
             self.render()
             self.inBlackout = False
 
-
-    # updates the dmx output from the USB DMX Pro
+    # updates the dmx output from the USB DMX Pro Widget
     # with the values from self.dmxFrame
     def render (self):
+        self.myPrint("Rendering all channels")
+
         self.inBlackout = False
 
         #Make the packet
@@ -98,13 +105,20 @@ class DmxWidget (object):
         self.com.write(''.join(packet))
 
     def close (self):
+        self.myPrint("Closing " + self.com.name)
         self.com.close()
 
-    def timePrint (self, string):
+    def myPrint (self, string):
+        if (self.verbose == False): return
         print time.strftime("%H%M%S"), "DmxWidget:", string
 
+    def constrain (val, lo, hi):
+        if val < lo: val = lo
+        if val > hi: val = hi
+        return int(round(val))
+
 class FakeDmxWidget (object):
-    def __init__ (self, comport):
+    def __init__ (self, comport, verbose = False):
         self.fakePrint("__init__(" + comport + ")")
 
     def setChannel (self, chan, val, autorender=False):

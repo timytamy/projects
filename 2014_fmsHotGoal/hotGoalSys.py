@@ -1,19 +1,22 @@
+import math
 import random
 import socket
 import time
+
 import mySimpleDmx
+#from mySimpleDmx import DmxWidet, FakeDmxWidet
 
 DEBUG = False
 
 GOAL_DMX_PATCH = [
-    [121, 125, 129], # BLU_L
-    [133, 137, 141], # BLU_R
-    [145, 149, 153], # RED_L
-    [157, 161, 165]  # RED_R
+    [121, 125, 129],    # BLU_L
+    [133, 137, 141],    # BLU_R
+    [145, 149, 153],    # RED_L
+    [157, 161, 165]     # RED_R
 ]
 
-NUM_GOALS = 4
-NUM_FIX = 3
+NUM_GOALS = 4           # Length of ^^ array of goals
+NUM_FIX = 3             # Number of lights per goal (length of sub array)
 
 BLU_L = 0
 BLU_R = 1
@@ -21,20 +24,27 @@ RED_L = 2
 RED_R = 3
 
 LEFT, RIGHT = 0, 1
-COLD, HOT = "COLD", "HOT"
+COLD, HOT = "CLD", "HOT"
 
 RGB_COLD = [0, 0, 0]
 RGB_HOT = [255, 255, 255]
 RGB_END_ALL = [0, 255, 0]
 RGB_END = [255, 0, 0]
-RGB_END_FLSH = [255, 255, 0]
+RGB_END_FL = [255, 255, 0]
 
 class HotGoalSystem (object):
 
     def __init__(self, comport):
         timePrint ("Connecting to DMX widget...")
-        #self.dmx = mySimpleDmx.FakeDmxWidget(comport)
-        self.dmx = mySimpleDmx.DmxWidget(comport)
+        try: 
+            self.dmx = mySimpleDmx.DmxWidget(comport)
+        except:
+            print "********************************************************"
+            timePrint("Error opening DmxWidget(%s)" %comport)
+            timePrint("Continuing with FAKE DmxWidget")
+            timePrint("This will print out DmxWidget calls for testing")
+            print "********************************************************"
+            self.dmx = mySimpleDmx.FakeDmxWidget(comport)
         timePrint("...DONE")
 
         if DEBUG:
@@ -46,8 +56,8 @@ class HotGoalSystem (object):
 
         self.goalIsHot = [False]*NUM_GOALS
 
-        self.firstHotGoal = None
         random.seed()
+        self.firstHotGoal = None
         self.randomiseHotGoal()
 
     def runAutoSequence (self):
@@ -77,23 +87,25 @@ class HotGoalSystem (object):
         self.renderGoals()
 
         timePrint("****Hot goal sequence complete****")
-        
+
         self.randomiseHotGoal()
-    
+
     def runCountDownSeq (self):
         self.setAllGoalsCold()
         self.renderGoals()
-        for i in range (0, (4)):
-            self.setAllRgb(RGB_END_FLSH[0], RGB_END_FLSH[1], RGB_END_FLSH[2])
+
+        for i in range (0, 10-(2*NUM_FIX)):
+            self.setAllRgb(RGB_END_FL[0], RGB_END_FL[1], RGB_END_FL[2])
             self.renderGoals()
             time.sleep(0.5)
             self.setAllGoalsCold()
             self.renderGoals()
             time.sleep(0.5)
-            
+
         self.setAllRgb(RGB_END_ALL[0], RGB_END_ALL[1], RGB_END_ALL[2])
         self.renderGoals()
         time.sleep(1)
+
         for fixNum in range(0, NUM_FIX):
             fixBlu = GOAL_DMX_PATCH[BLU_L][fixNum]
             fixRed = GOAL_DMX_PATCH[RED_L][fixNum]
@@ -101,7 +113,7 @@ class HotGoalSystem (object):
             self.setFixRgb(fixRed, RGB_END[0], RGB_END[1], RGB_END[2])
             self.renderGoals()
             time.sleep(1)
-        
+
         for fixNum in range(0, NUM_FIX):
             fixBlu = GOAL_DMX_PATCH[BLU_R][fixNum]
             fixRed = GOAL_DMX_PATCH[RED_R][fixNum]
@@ -110,7 +122,7 @@ class HotGoalSystem (object):
             self.renderGoals()
             time.sleep(1)
 
-    
+
     def setAllRgb (self, r, g, b, render = False):
         for goal in range(0, NUM_GOALS):
             self.setGoalRgb(goal, r, g, b)
@@ -126,24 +138,25 @@ class HotGoalSystem (object):
 
     def renderGoals (self):
         self.dmx.render()
-            
+
     def printFirstHotGoal (self):
         if (self.firstHotGoal == LEFT):
             timePrint("The LEFT goal will be hot first")
         else:
             timePrint("The RIGHT goal will be hot first")
-            
+
     def haveFun (self):
         for goal in range(0, NUM_GOALS):
-            r = random.randint(0, 255)
-            g = random.randint(0, 255)
-            b = random.randint(0, 255)
+            rand = random.random()
+            r = round(255 * (math.sin(2*math.pi*(rand + 0/3.0))+1)/2)
+            g = round(255 * (math.sin(2*math.pi*(rand + 1/3.0))+1)/2)
+            b = round(255 * (math.sin(2*math.pi*(rand + 2/3.0))+1)/2)
             self.setGoalRgb(goal, r, g, b)
         self.renderGoals()
-            
+
 ################ Helper Functions ################
     def randomiseHotGoal (self):
-        if (random.randint(1,10) % 2):
+        if (random.randint(1,10) % 2): # So random
             self.firstHotGoal = LEFT
         else:
             self.firstHotGoal = RIGHT
@@ -177,8 +190,8 @@ class HotGoalSystem (object):
 
 # Other helper functions
 def timePrint (string):
-    print time.strftime("%H%M%S"), string            
-            
+    print time.strftime("%H%M%S"), string
+
 def getLocalIp():
     # Copied and modified from http://stackoverflow.com/a/23822431
     try:

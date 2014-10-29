@@ -1,12 +1,16 @@
 #!/usr/bin/env python
 import time
-import hotGoalSystem
+
+from hotGoalSys import timePrint, HotGoalSystem
 
 COMPORT = '/dev/ttyUSB0'
 
-goals = hotGoalSystem.HotGoalSystem(COMPORT)
+def main ():
+   goals = HotGoalSystem(COMPORT)
 
-while True:
-   goals.timePrint("Press Enter to start the hot goal sequence")
-   raw_input()
-   goals.runAutoSequence()
+   while True:
+      timePrint("Press Enter to start the hot goal sequence")
+      raw_input()
+      goals.runAutoSequence()
+
+if __name__ == "__main__": main()
