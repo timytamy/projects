@@ -60,7 +60,7 @@ class HotGoalSystem (object):
         self.firstHotGoal = None
         self.randomiseHotGoal()
 
-    def runAutoSequence (self):
+    def runAutoSeq (self):
         timePrint("****Starting hot goal sequence****")
         self.setAllGoalsCold()
 

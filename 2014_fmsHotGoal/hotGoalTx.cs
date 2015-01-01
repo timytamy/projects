@@ -65,7 +65,6 @@ public class HotGoal {
         string rgbString = extAscii.GetString(rgb);
 
         TxMessage(MSG_PRE_RGB + rgbString);
-
     }
 
     // Sets all goals to individual RGB values.

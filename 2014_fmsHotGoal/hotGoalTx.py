@@ -8,8 +8,7 @@ from hotGoalNetworked import *
 
 def main ():
     if (len(sys.argv) < 3):
-        print "Usage:", sys.argv[0],
-        print "[ADDRESS] [FUNCTION] [OPTIONAL VALUES]"
+        print "Usage:", sys.argv[0], "[ADDRESS] [FUNCTION] [OPTIONAL VALUES]"
         return
 
     random.seed()

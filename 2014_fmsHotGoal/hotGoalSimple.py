@@ -11,6 +11,6 @@ def main ():
    while True:
       timePrint("Press Enter to start the hot goal sequence")
       raw_input()
-      goals.runAutoSequence()
+      goals.runAutoSeq()
 
 if __name__ == "__main__": main()

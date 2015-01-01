@@ -17,11 +17,19 @@ MSG_PRE_RGB = "DORGB:"
 MSG_PRE_RGB_EA = "EARGB:"
 MSG_HAVE_FUN  = "HVFUN:"
 
-COMPORT = "/dev/ttyUSB0"
+COMPORT_DEFAULT = "/dev/ttyUSB0"
 
 def main ():
 
-    goals = HotGoalSystem(COMPORT)
+    comport = None
+    if (len(sys.argv) < 2):
+         timePrint("Usage: " + sys.argv[0] + " [COMPORT]")
+         timePrint("Trying with default comport: " + COMPORT_DEFAULT)
+         timePrint("")
+         comport = COMPORT_DEFAULT
+    else: comport = sys.argv[1]
+
+    goals = HotGoalSystem(comport)
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     while True:
@@ -41,7 +49,9 @@ def main ():
     while True:
         conn, addr = sock.accept()
         timePrint("Connection recieved from " + str(addr))
+
         newData = True
+
         while True:
             if (newData or DEBUG):
                 print "\n" + "*"*80
@@ -68,7 +78,7 @@ def main ():
             if (MSG_AUTO_START in msg):
                 newData = True
                 timePrint("Starting hotGoalSequence")
-                goals.runAutoSequence()
+                goals.runAutoSeq()
 
             elif (MSG_COUNTDOWN in msg):
                 newData = True
@@ -113,7 +123,7 @@ def main ():
 
             elif (MSG_HAVE_FUN in msg):
                 newData = True
-                timePrint("Having fun")
+                timePrint("Having fun :)")
                 goals.haveFun()
 
         conn.close()

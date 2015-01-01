@@ -48,9 +48,8 @@ class DmxWidget (object):
     # render() method is called
     def setChannel (self, chan, val, autorender=False):
         if (chan < 1) or (DMX_FRAME_SIZE < chan): return
-        if val < 0: val=0
-        if val > 255: val=255
-        val = int(round(val))
+
+        val = self.constrain(val, 0, 255)
 
         self.myPrint("Setting@" + chan + "@" + val)
         self.dmxFrame[chan] = val
@@ -58,7 +57,7 @@ class DmxWidget (object):
         if autorender: self.render()
 
     def readChannel (self, chan):
-        if (chan < 1) or (DMX_FRAME_SIZE < chan): return
+        if (chan < 1) or (DMX_FRAME_SIZE < chan): return None
         return self.dmxFrame[chan]
 
     #  clears all channels to zero.
