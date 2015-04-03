@@ -2,3 +2,12 @@
 [submodule "2014_fmsHotGoal/pySimpleDMX"]
 	path = 2014_fmsHotGoal/pySimpleDMX
 	url = git@github.com:c0z3n/pySimpleDMX.git
+[submodule "2015_floppyMusic/FloppyMusic"]
+	path = 2015_floppyMusic/FloppyMusic
+	url = git@github.com:tkbletsc/FloppyMusic.git
+[submodule "libEagle/Adafruit-Eagle-Library"]
+	path = libEagle/Adafruit-Eagle-Library
+	url = https://github.com/adafruit/Adafruit-Eagle-Library.git
+[submodule "libEagle/SparkFun-Eagle-Libraries"]
+	path = libEagle/SparkFun-Eagle-Libraries
+	url = https://github.com/sparkfun/SparkFun-Eagle-Libraries.git
