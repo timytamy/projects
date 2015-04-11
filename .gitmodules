@@ -7,7 +7,13 @@
 	url = git@github.com:tkbletsc/FloppyMusic.git
 [submodule "libEagle/Adafruit-Eagle-Library"]
 	path = libEagle/Adafruit-Eagle-Library
-	url = https://github.com/adafruit/Adafruit-Eagle-Library.git
+	url = git@github.com:adafruit/Adafruit-Eagle-Library.git
 [submodule "libEagle/SparkFun-Eagle-Libraries"]
 	path = libEagle/SparkFun-Eagle-Libraries
-	url = https://github.com/sparkfun/SparkFun-Eagle-Libraries.git
+	url = git@github.com:sparkfun/SparkFun-Eagle-Libraries.git
+[submodule "libEagle/SparkFun_Eagle_Settings"]
+	path = libEagle/SparkFun_Eagle_Settings
+	url = git@github.com:sparkfun/SparkFun_Eagle_Settings.git
+[submodule "libEagle/Eagle_Library"]
+	path = libEagle/SeedStudio-Eagle-Libraries
+	url = git@github.com:Seeed-Studio/Eagle_Library.git
