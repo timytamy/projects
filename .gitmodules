@@ -17,3 +17,6 @@
 [submodule "libEagle/Eagle_Library"]
 	path = libEagle/SeedStudio-Eagle-Libraries
 	url = git@github.com:Seeed-Studio/Eagle_Library.git
+[submodule "libEagle/SeedStudio-Eagle-Libraries"]
+	path = libEagle/SeedStudio-Eagle-Libraries
+	url = git@github.com:Seeed-Studio/Eagle_Library.git
