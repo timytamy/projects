@@ -19,6 +19,8 @@ def main ():
     printgrid(grid)
     print "Has", calcAssists(grid), "assist(s)"
 
+    print "something here"
+
 def calcAssists (grid):
     asstCombs = [0]*(6) #3! Combinations
 
